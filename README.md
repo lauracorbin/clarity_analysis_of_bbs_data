@@ -20,7 +20,7 @@ Code relating to the analysis of metabolomics data from the By-Band-Sleeve trial
 00\_functions.R - Functions called by 01_association_analysis.R.  
 01\_association\_analysis.R - Code to run an LMM analysis of data.  
 
-#### results_process
+#### results_process (LJC)
 00\_functions.R - Functions called by 01 script. Edited versions of functions from bubblehatmap package. 
 01\_explore\_hits.R - exploration of clarity results including heatmap generation. 
 01a\_feature\_labels.R - relabelling of features to work with bubbleheatmap package.  
