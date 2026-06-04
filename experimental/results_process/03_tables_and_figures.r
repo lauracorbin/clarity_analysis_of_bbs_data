@@ -4,6 +4,9 @@
 ### SET UP ###################################################################################################################
 ##############################################################################################################################
 
+# clear working space
+rm(list = ls())
+
 ## read in parameters 
 source("parameter_files/00_parameters.R")
 
@@ -31,6 +34,28 @@ all_results <- read.table(file=paste0(results_dir, "combined/all_results.txt"),h
 
 # edge pvals
 edge_p <- read.table(file=paste0(results_dir, "clarity/20251114/edge_pvals.csv"),h=T, sep=",")
+
+##############################################################################################################################
+### GENERATE GROUP VAR #######################################################################################################
+##############################################################################################################################
+
+# add new labels that are collapsed classes
+all_results$Group <- "Other"
+all_results <- all_results %>% mutate(`Group` = replace(`Group`, `class` == "Amino acids", "Amino acids"))
+all_results <- all_results %>% mutate(`Group` = replace(`Group`, `class` == "Apolipoproteins", "Lipid and lipoprotein molecules"))
+all_results <- all_results %>% mutate(`Group` = replace(`Group`, `class` == "Lipoprotein subclasses", "Lipid and lipoprotein molecules"))
+all_results <- all_results %>% mutate(`Group` = replace(`Group`, `class` == "Lipoprotein particle concentrations", "Lipid and lipoprotein molecules"))
+all_results <- all_results %>% mutate(`Group` = replace(`Group`, `class` == "Lipoprotein particle sizes", "Lipid and lipoprotein molecules"))
+all_results <- all_results %>% mutate(`Group` = replace(`Group`, `class` == "Other lipids", "Lipid and lipoprotein molecules"))
+all_results <- all_results %>% mutate(`Group` = replace(`Group`, `class` == "Glycerides and phospholipids", "Lipid and lipoprotein molecules"))
+all_results <- all_results %>% mutate(`Group` = replace(`Group`, `class` == "Phospholipids", "Lipid and lipoprotein molecules"))
+all_results <- all_results %>% mutate(`Group` = replace(`Group`, `class` == "Total lipids", "Lipid and lipoprotein molecules"))
+all_results <- all_results %>% mutate(`Group` = replace(`Group`, `class` == "Fatty acids", "Fatty acids"))
+all_results <- all_results %>% mutate(`Group` = replace(`Group`, `class` == "Cholesterol", "Cholesterol molecules"))
+all_results <- all_results %>% mutate(`Group` = replace(`Group`, `class` == "Free cholesterol", "Cholesterol molecules"))
+all_results <- all_results %>% mutate(`Group` = replace(`Group`, `class` == "Cholesteryl esters", "Cholesterol molecules"))
+table(all_results$class, all_results$Group)
+
 
 ##############################################################################################################################
 ### CLASS DISTRIBUTIONS ######################################################################################################
@@ -87,7 +112,7 @@ filename <- paste0(results_dir,"figures/SuppFig1_class_distribution.pdf")
 pdf(filename)
 
 ggplot(stacked_bar_data_combo, aes(fill=Class,y=Percentage.in.class,x=outcome)) +
-  geom_bar(position="stack",stat="identity",colour="black",size=0.1) +
+  geom_bar(position="stack",stat="identity",colour="black") +
   theme_set(theme_bw()) +
   theme(axis.title.x = element_blank()) +
   labs(y="Percentage in class") +
@@ -107,14 +132,19 @@ table_out <- table_out[,c(1,2,3,5,6,8,9)]
 write.table(table_out,paste0(results_dir,"tables/class_distribution.txt"), row.names=F, quote=F, sep="\t")
 
 
+
 ##############################################################################################################################
 ### COMPARE RESULTS ##########################################################################################################
 ##############################################################################################################################
 
+# update theme/colours
+theme_set(theme_bw())
+options(ggplot2.discrete.colour= c("#E69F00","#56B4E9","#CC79A7", "#009E73", "#F0E442", "#0072B2",
+                                   "#D55E00","#999999", "#000000"))
 
-filename <- paste0(results_dir,"figures/Figure6_scatter_compare.pdf")
+filename <- paste0(results_dir,"figures/Figure4_scatter_compare.pdf")
 pdf(filename)
-ggplot(all_results, aes(x=-log10(p_adjusted), y=-log10(persistence.p.value), colour=class)) + 
+ggplot(all_results, aes(x=-log10(p_adjusted), y=-log10(persistence.p.value), colour=Group, shape = Group)) + 
   geom_point() +
   geom_text_repel(data=subset(all_results, persistence.p.value < 0.05),
             aes(-log10(p_adjusted),-log10(persistence.p.value),label=feature.name),show.legend = FALSE) +
@@ -122,9 +152,10 @@ ggplot(all_results, aes(x=-log10(p_adjusted), y=-log10(persistence.p.value), col
                   aes(-log10(p_adjusted),-log10(persistence.p.value),label=feature.name),show.legend = FALSE) +
   theme_set(theme_bw()) +
   theme(legend.position = "bottom") + 
-  guides(colour=guide_legend(nrow=6)) +
+  guides(colour=guide_legend(nrow=5)) +
   labs(x=expression(-log[10]*p~"from LMM"),y=expression(-log[10]*p~"from CLARITY")) +
-  scale_colour_viridis(discrete=T,option="turbo") +
+  #scale_colour_viridis(discrete=T,option="turbo") +
+  scale_shape_manual(values = 1:length(unique(all_results$Group))) +
   geom_hline(yintercept = -log10(0.05), lty = 'longdash', alpha=0.5) + 
   geom_vline(xintercept = -log10(0.05), lty = 'longdash', alpha=0.5)
 invisible(dev.off())
@@ -135,34 +166,37 @@ invisible(dev.off())
 
 plot_list <- list()
 
-plot_list[[1]] <- ggplot(data = all_results, aes(x = persistence.value, y = -log10(persistence.p.value),color=class)) + 
+plot_list[[1]] <- ggplot(data = all_results, aes(x = persistence.value, y = -log10(persistence.p.value),color=Group, shape = Group)) + 
   labs(x="Persistence value ",y=expression(-log[10]*p~"")) +
   geom_point() +
   theme(legend.position = "bottom") + 
   theme_set(theme_bw()) +
   geom_hline(yintercept = -log10(0.05),linetype="dashed") +
   theme(legend.position = "none") +
-  scale_colour_viridis(discrete=T,option="turbo")
+  #scale_colour_viridis(discrete=T,option="turbo") +
+  scale_shape_manual(values = 1:length(unique(all_results$Group)))
 
-plot_list[[2]] <- ggplot(data = all_results, aes(x = total_r_baseline, y = -log10(persistence.p.value),color=class)) + 
+plot_list[[2]] <- ggplot(data = all_results, aes(x = total_r_baseline, y = -log10(persistence.p.value),color=Group, shape = Group)) + 
   labs(x="Total correlation at baseline",y=expression(-log[10]*p~"")) +
   geom_point() +
   theme(legend.position = "bottom") + 
   theme_set(theme_bw()) +
   geom_hline(yintercept = -log10(0.05),linetype="dashed") +
   theme(legend.position = "none") +
-  scale_colour_viridis(discrete=T,option="turbo")
+  #scale_colour_viridis(discrete=T,option="turbo") +
+  scale_shape_manual(values = 1:length(unique(all_results$Group))) 
 
-plot_list[[3]] <- ggplot(data = all_results, aes(x = total_r_baseline, y = persistence.value,color=class)) + 
+plot_list[[3]] <- ggplot(data = all_results, aes(x = total_r_baseline, y = persistence.value,color=Group, shape = Group)) + 
   labs(x="Total correlation at baseline",y="Persistence value") +
   geom_point() +
   theme(legend.position = "bottom") + 
   theme_set(theme_bw()) +
   guides(colour=guide_legend(nrow=6)) +
-  scale_colour_viridis(discrete=T,option="turbo")
+  #scale_colour_viridis(discrete=T,option="turbo") +
+  scale_shape_manual(values = 1:length(unique(all_results$Group))) 
 
 
-filename = paste0(fig_dir,"SuppFig2_three_plots.pdf")
+filename = paste0(fig_dir,"SuppFig3_three_plots.pdf")
 outputfig <- ggpubr::ggarrange(plotlist=plot_list,
                                ncol=1, nrow=3,
                                common.legend = T,
@@ -175,18 +209,22 @@ ggpubr::ggexport(outputfig, filename=filename)
 ### make version of all results for suppl table ##############################################################################
 ##############################################################################################################################
 
+# add column - BH adjusted persistence p
+all_results[,'persistence.p.value.adjusted'] <- p.adjust(all_results[,'persistence.p.value'], method = 'BH') 
+
 # restrict to columns needed for table
 pub_results <- all_results[,c("feature.name", "label", "class", "subclass",
                               "beta_mixed",  "lci_mixed", "uci_mixed", "P_mixed", "p_adjusted",
                               "R2_model", "R2_timepoint", "R2_model_conditional", "R2_timepoint_conditional",   
-                              "persistence.value","persistence.p.value",
+                              "persistence.value","persistence.p.value",'persistence.p.value.adjusted', 
                               "total_r_baseline", "total_r_endpoint", "total_r_diff"
-                              )]
+)]
+
 # rename columns
 names(pub_results) <- c("metabolite_short_name", "metabolite_full_name", "metabolite_class", "metabolite_subclass",
                         "lmm_beta", "lmm_lci", "lmm_uci", "lmm_p", "lmm_adj.p",
                         "lmm_total_R2", "lmm_timepoint_R2", "lmm_total_cond.R2", "lmm_timepoint_cond.R2",
-                        "clarity_persistence.value.at.k25", "clarity_persistence.p.value.at.k25",
+                        "clarity_persistence.value.at.k25", "clarity_persistence.p.value.at.k25", "clarity_persistence.p.value.at.k25.adjusted",
                         "total_r_baseline", "total_r_endopint","total_r_diff")
 
 # Identify numeric columns

@@ -28,13 +28,11 @@ keep_features <- features$V1
 baseline_covar <- baseline_covar[keep_features,keep_features]
 
 endpoint_covar <- endpoint_covar[keep_features,keep_features]
-baseline_covar <- scale(baseline_covar)
 
-baseline_covar <- (baseline_covar + t(baseline_covar))/2
+#baseline_covar <- (baseline_covar + t(baseline_covar))/2
 
-endpoint_covar <- scale(endpoint_covar)
 
-endpoint_covar <- (endpoint_covar + t(endpoint_covar))/2
+#endpoint_covar <- (endpoint_covar + t(endpoint_covar))/2
 
 
 really_as_matrix<-function(A){
@@ -44,6 +42,8 @@ really_as_matrix<-function(A){
   return(ret)
 }
 kmax <- 60
+
+
 
 baseline_scan <- Clarity_Scan(baseline_covar, kmax=kmax)
 endpoint_pred <- Clarity_Predict(endpoint_covar, baseline_scan)
@@ -60,7 +60,7 @@ baseline_res <- Clarity_Extract(baseline_pred, summary = I, k = 25)
 baseline_res <- really_as_matrix(baseline_res)
 
 
-#--------- Make Figure 5 ----------
+#--------- Make Figure 2 ----------
 get_threshold <- function(mat, n) {
   vals <- sort(as.numeric(abs(mat)), decreasing = TRUE)
   threshold <- vals[n]
@@ -80,7 +80,7 @@ c_pred=Clarity_Persistence(endpoint_pred)
 zlim_pers=c(0,sqrt(max(c_pred)))
 
 mypar=c(5,5,2,1)
-png("figures/Figure_5.png",height=600,width=1200)
+png("figures/Figure_2.png",height=600,width=1200)
 par(mfrow=c(2,3))
 
 Clarity_Chart(baseline_covar,scalefun=I,cex.axis=0,las=2,mar=mypar,

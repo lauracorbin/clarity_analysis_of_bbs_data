@@ -4,6 +4,9 @@
 ### SET UP ###################################################################################################################
 ##############################################################################################################################
 
+# clear working space
+rm(list = ls())
+
 ## read in parameters 
 source("parameter_files/00_parameters.R")
 
@@ -311,14 +314,19 @@ clarity_results$total_r_diff <- clarity_results$total_r_endpoint - clarity_resul
 clarity_results$clarity_flag <- "not persistent"
 clarity_results <- clarity_results %>% mutate(`clarity_flag` = replace(`clarity_flag`, clarity_results$pval_k25 < 0.05 , "persistent"))
 
-filename = paste0(fig_dir,"SuppFig3_r_hist.pdf")
+# update theme/colours
+theme_set(theme_bw())
+options(ggplot2.discrete.colour= c("#E69F00","#56B4E9","#CC79A7", "#009E73", "#F0E442", "#0072B2",
+                                   "#D55E00","#999999", "#000000"))
+
+filename = paste0(fig_dir,"SuppFig2_r_hist.pdf")
 pdf(filename)
 ggplot(data = clarity_results, aes(x = total_r_diff, fill = as.factor(clarity_flag))) + 
   geom_histogram() +
   theme_set(theme_bw()) + 
   guides(fill=guide_legend(title="Metabolite group")) +
-  xlab("Difference in total correlation\n (post-treatment - pre-treatment)") +
-  scale_fill_viridis(discrete=T,option="turbo",begin=0.2, end=0.9)
+  xlab("Difference in total correlation\n (post-treatment - pre-treatment)") 
+  #scale_fill_viridis(discrete=T,option="turbo",begin=0.2, end=0.9)
 dev.off()
 
 ##############################################################################################################################

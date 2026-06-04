@@ -97,7 +97,7 @@ zlim=sqrt(zlim)
 
 mypar=c(5,2,2,2)
 myline=2
-png("figures/Figure_2.png",
+png("figures/Figure_5.png",
     height=600,width=1200)
 par(mfrow=c(2,3))
 
@@ -125,13 +125,13 @@ mtext("(c) Baseline Persistences", side = 1,line=myline,
 
 Clarity_Chart(X2_cov,scalefun=I,cex.axis=0,las=2,mar=mypar,
               zlim=c(0,1)*cov_max)
-a1range=range(which(anomalies==1))
-a2range=range(which(anomalies==2))
-a3range=range(which(anomalies==3))
-abline(h=c(a2range[1],a2range[2], a3range[1], a3range[2]), lty = 2)
-abline(v=c(a2range[1],a2range[2], a3range[1], a3range[2]), lty = 2)
-rect(xleft = c(a1range[1],a2range[1]), xright = c(a1range[2],a2range[2]),
-     ybottom = c(a1range[1],a2range[1]), ytop = c(a1range[2],a2range[2]), lwd = 2)
+a1range=range(which(anomalies==1)) + c(-0.5,0.5)
+a2range=range(which(anomalies==2))+ c(-0.5,0.5)
+a3range=range(which(anomalies==3))+ c(-0.5,0.5)
+abline(h=c(a2range[1],a2range[2], a3range[1], a3range[2], a1range[1], a1range[2]), lty = 2)
+abline(v=c(a2range[1],a2range[2], a3range[1], a3range[2], a1range[1], a1range[2]), lty = 2)
+rect(xleft = c(a1range[1],a2range[1], a3range[1]), xright = c(a1range[2],a2range[2], a3range[2]),
+     ybottom = c(a1range[1],a2range[1], a3range[1]), ytop = c(a1range[2],a2range[2], a3range[2]), lwd = 2)
 mtext("(d) Raw Endpoint Covariance", side = 1,line=myline,
       padj = 2, cex = 1)
 
@@ -139,17 +139,17 @@ mtext("(d) Raw Endpoint Covariance", side = 1,line=myline,
 Clarity_Chart(X2_pred_cov$scan[[7]]$Yresid, scalefun=I,cex.axis=0,las=2,mar=mypar,
               zlim=c(-1,1)*res_max,
               cols=my_palette)
-abline(h=c(a2range[1],a2range[2], a3range[1], a3range[2]), lty = 2)
-abline(v=c(a2range[1],a2range[2], a3range[1], a3range[2]), lty = 2)
-rect(xleft = c(a1range[1],a2range[1]), xright = c(a1range[2],a2range[2]),
-     ybottom = c(a1range[1],a2range[1]), ytop = c(a1range[2],a2range[2]), lwd = 2)
+abline(h=c(a2range[1],a2range[2], a3range[1], a3range[2], a1range[1], a1range[2]), lty = 2)
+abline(v=c(a2range[1],a2range[2], a3range[1], a3range[2], a1range[1], a1range[2]), lty = 2)
+rect(xleft = c(a1range[1],a2range[1], a3range[1]), xright = c(a1range[2],a2range[2],  a3range[2]),
+     ybottom = c(a1range[1],a2range[1], a3range[1]), ytop = c(a1range[2],a2range[2],  a3range[2]), lwd = 2)
 
 mtext("(e) Endpoint Residuals",side=1, padj = 2, line=myline,cex = 1)
 
 plot(X2_pred_cov,rotate=TRUE,cex.axis.X = 1,cex.axis.Y=0,las=1,
      mar=mypar,zlim=zlim)
 abline(v=7)
-abline(h=c(a2range[1],a2range[2], a3range[1], a3range[2]),  lwd = 2, col = 'blue')
+abline(h=(c(a2range[1],a2range[2], a3range[1], a3range[2], a1range[1], a1range[2])),  lwd = 2, col = 'dark grey')
 mtext("k=", line=1,side = 1, adj = -0.05, cex = 0.8)
 mtext("(f) Endpoint Persistences", side = 1, padj = 2, line=myline,cex = 1)
 
@@ -241,11 +241,11 @@ main_plot <- ggplot(plot_data, aes(LMM, CLARITY, colour = Anomalies)) +
   scale_color_discrete() +
   theme_bw(base_size = 18) +
   labs(x=expression(-log[10]*p~"from LMM"),y=expression(-log[10]*p~"from CLARITY"))+
-  theme(
-    legend.position = c(0.95, 0.05),
-    legend.justification = c("right", "bottom"),
-    legend.background = element_rect(fill = alpha("white", 0.6))
-  ) + 
+#  theme(
+#    legend.position = c(0.95, 0.05),
+#    legend.justification = c("right", "bottom"),
+#    legend.background = element_rect(fill = alpha("white", 0.6))
+#  ) + 
   ggtitle("a) comparison of p-values")
 
 mean_plot <- ggplot(plot_mean_aucs, aes(x = Mean, AUC, colour = Method)) + 
@@ -276,7 +276,7 @@ mean_plot <- ggplot(plot_mean_aucs, aes(x = Mean, AUC, colour = Method)) +
   ) + 
   ggtitle("b) sensitivity analysis")
 
-png("figures/Figure_3.png",
+png("figures/Figure_6.png",
         height=600,width=1200)
 grid.arrange(main_plot, mean_plot, ncol = 2,widths=c(2,1))
 dev.off()
