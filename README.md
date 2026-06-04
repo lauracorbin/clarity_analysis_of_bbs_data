@@ -1,7 +1,3 @@
-# wt1\_wp1\_037\_multivariate\_metabolomics
-
-
-
 ## Summary
 
 This repo contains code to support analyses presented in the manuscript: "Multivariate analysis of metabolomic data to identify biological pathways modified by a clinical intervention"
