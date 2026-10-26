@@ -4,6 +4,8 @@ This repo contains code to support analyses presented in the manuscript: "Multiv
 
 Code contributed by Laura Corbin (LJC) and Rachel Wood (RMW).
 
+DOI for code: https://doi.org/10.5281/zenodo.23661272 
+
 ## Files
 
 ### experimental
